@@ -449,7 +449,7 @@ int wolfCLU_certSetup(int argc, char** argv)
         if (name != NULL) {
 
             XSNPRINTF(txt, MAX_TERM_WIDTH, "%s\n",
-                    "Not canon version of subject:");
+                    "Canon version of subject:");
             if (wolfSSL_BIO_write(out, txt, (int)XSTRLEN(txt)) <= 0) {
                 ret = WOLFCLU_FATAL_ERROR;
             }

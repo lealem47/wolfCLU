@@ -196,8 +196,8 @@ Time Stamp Signing : YES"
     fi
     echo "TEST 3.k"
     test_case "-in certs/server-cert.pem -hash -noout"
-    EXPECTED="Not canon version of subject:
-f6cf410e"
+    EXPECTED="Canon version of subject:
+137dc03f"
     if [ "$OUTPUT" != "$EXPECTED" ]; then
         echo "found unexpected $OUTPUT"
         echo "expected $EXPECTED"
