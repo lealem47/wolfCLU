@@ -877,7 +877,7 @@ int wolfCLU_getAlgo(int argc, char** argv, int* alg, char** mode, int* size)
     /* next check for -cipher option passed through args */
     if (ret < 0) {
         opterr = 0; /* do not print out unknown options */
-        while ((option = getopt_long_only(argc, argvCopy, "",
+        while ((option = wolfCLU_GetOpt(argc, argvCopy, "",
                        crypt_algo_options, &longIndex )) != -1) {
             switch (option) {
                 /* AES */
@@ -958,9 +958,48 @@ int wolfCLU_getAlgo(int argc, char** argv, int* alg, char** mode, int* size)
  */
 int wolfCLU_noEcho(char* pwdKey, int size)
 {
-    struct termios oflags, nflags;
     char* success;
     int ret;
+
+#ifdef _WIN32
+    HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+    if(hStdIn == INVALID_HANDLE_VALUE) {
+        WOLFCLU_LOG(WOLFCLU_E0, "Error");
+        return WOLFCLU_FATAL_ERROR;
+
+    }
+
+    /* Get console mode */
+    DWORD mode;
+    if(!GetConsoleMode(hStdIn, &mode)) {
+        WOLFCLU_LOG(WOLFCLU_E0, "Couldn't get the original terminal settings");
+        return WOLFCLU_FATAL_ERROR;
+    }
+   
+    /* disabling echo*/
+    if(!SetConsoleMode(hStdIn, mode & ~((DWORD) ENABLE_ECHO_INPUT))) {
+        WOLFCLU_LOG(WOLFCLU_E0, "Couldn't turn off echo");
+        return WOLFCLU_FATAL_ERROR;
+    }
+
+    WOLFCLU_LOG(WOLFCLU_L0, "pwdKey: ");
+    success = fgets(pwdKey, size, stdin);
+    if (success == NULL) {
+        /* User wants manual input to be encrypted
+         * Do Nothing
+         */
+    }
+
+    pwdKey[strlen(pwdKey) - 1] = 0;
+
+    /* Restore terminal */
+    if(!SetConsoleMode(hStdIn, mode | ENABLE_ECHO_INPUT)) {
+        WOLFCLU_LOG(WOLFCLU_E0, "Couldn't turn echo back on");
+        return WOLFCLU_FATAL_ERROR;
+    }
+        
+#else /* running on *nix */
+    struct termios oflags, nflags;
 
     /* disabling echo */
     tcgetattr(fileno(stdin), &oflags);
@@ -989,6 +1028,7 @@ int wolfCLU_noEcho(char* pwdKey, int size)
         WOLFCLU_LOG(WOLFCLU_E0, "Error");
         return WOLFCLU_FATAL_ERROR;
     }
+#endif
     return WOLFCLU_SUCCESS;
 }
 
@@ -1062,7 +1102,6 @@ int wolfCLU_checkForArg(const char* searchTerm, int length, int argc,
     int i;
     int ret = 0;
     int argFound = 0;
-
     if (searchTerm == NULL) {
         return 0;
     }
@@ -1071,7 +1110,11 @@ int wolfCLU_checkForArg(const char* searchTerm, int length, int argc,
         if (argv[i] == NULL) {
             break; /* stop checking if no more args*/
         }
-        else if (XSTRNCMP(searchTerm, "-help", length) == 0 &&
+        if (argv[i][0] == '-') { /* get rid of '-' char if present */
+                argv[i] = argv[i]+1;
+        }
+
+        if (XSTRNCMP(searchTerm, "-help", length) == 0 &&
                    XSTRNCMP(argv[i], "-help", XSTRLEN(argv[i])) == 0 &&
                    (int)XSTRLEN(argv[i]) > 0) {
            return 1;
@@ -1079,7 +1122,6 @@ int wolfCLU_checkForArg(const char* searchTerm, int length, int argc,
         }
         else if (XMEMCMP(argv[i], searchTerm, length) == 0 &&
                    (int)XSTRLEN(argv[i]) == length) {
-
             ret = i;
             if (argFound == 1) {
                 WOLFCLU_LOG(WOLFCLU_E0, "ERROR: argument found twice: \"%s\"", searchTerm);
@@ -1372,3 +1414,42 @@ int wolfCLU_GetPassword(char* password, int* passwordSz, char* arg)
     return ret;
 }
 
+
+/* Not handling options char yet*/
+int wolfCLU_GetOpt(int argc, char** argv, const char *options, 
+       const struct option *long_options, int *opt_index)
+{
+    int end   = 0;      /* variable used to exit while loops */ 
+    int i     = optind; /* variable to keep track of starting option position */
+    int index = 0;      /* index at which option was found */
+
+    while(!end){
+
+        /* set end to 1 if last option is reached */ 
+        if (long_options[i].name == 0 ) {
+            end = 1;
+            return WOLFCLU_FATAL_ERROR; 
+        }
+        else {
+
+            /* check if option is present in argv */ 
+            index = wolfCLU_checkForArg(long_options[i].name, strlen(long_options[i].name), argc, argv); 
+            optind++;
+
+            /* if index matches *opt_index at first position or if index is found */
+            if (index == *opt_index+1 || (*opt_index !=0 && index > 0)) {
+                if (long_options[i].has_arg == 1) {
+                    optarg=argv[index+1];
+                }
+                return long_options[i].val;
+            }
+        }
+
+        i++;
+    }
+
+    (void) *options;
+
+    return WOLFCLU_FATAL_ERROR; 
+
+}
