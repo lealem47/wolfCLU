@@ -45,11 +45,11 @@ jobs:
      
     - name: replace options.h
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: replace ${{env.OPTIONS_H}} ${{env.OPTIONS_H_NEW}}
+      run: cp ${{env.OPTIONS_H}} ${{env.OPTIONS_H_NEW}}
 
     - name: replace user_settings.h
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: replace ${{env.USER_SETTINGS_H}} ${{env.USER_SETTINGS_H_NEW}}
+      run: cp ${{env.USER_SETTINGS_H}} ${{env.USER_SETTINGS_H_NEW}}
 
     - name: Build wolfssl
       working-directory: ${{env.GITHUB_WORKSPACE}}
