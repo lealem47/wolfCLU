@@ -45,7 +45,7 @@ jobs:
     
     - name: Display CLU
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: dir wolfclu
+      run: dir
       
     - name: replace user_settings.h
       working-directory: ${{env.GITHUB_WORKSPACE}}
