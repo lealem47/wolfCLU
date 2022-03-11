@@ -42,11 +42,7 @@ jobs:
     - name: Restore wolfSSL NuGet packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.WOLFSSL_SOLUTION_FILE_PATH}}
-    
-    - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}wolfclu
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
- 
+     
     - name: replace options.h
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: replace ${{env.OPTIONS_H}} ${{env.OPTIONS_H_NEW}}
@@ -64,7 +60,11 @@ jobs:
     - uses: actions/checkout@master
       with: 
         path: wolfclu
-       
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}wolfclu
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+   
     - name: copy wolfSSL.lib
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: cp ${{env.WOLFSSL_LIB_PATH}} ${{env.WOLFSSL_LIB_TARGET_PATH}}
