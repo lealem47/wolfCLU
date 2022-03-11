@@ -50,6 +50,11 @@ jobs:
     - name: replace user_settings.h
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: cp ${{env.USER_SETTINGS_H_NEW}} ${{env.USER_SETTINGS_H}} 
+    
+    - name: VIEW options.h
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: type ${{env.USER_SETTINGS_H}}
+      
 
     - name: Build wolfssl
       working-directory: ${{env.GITHUB_WORKSPACE}}
