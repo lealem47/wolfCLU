@@ -10,9 +10,9 @@ env:
   # Path to the solution file relative to the root of the project.
   WOLFSSL_SOLUTION_FILE_PATH: wolfssl/wolfssl64.sln 
   SOLUTION_FILE_PATH: wolfclu.sln
-  OPTIONS_H_NEW: wolfclu/ide/winvs/options.h
+  OPTIONS_H_NEW: ide/winvs/options.h
   OPTIONS_H: wolfssl/wolfssl/options.h
-  USER_SETTINGS_H_NEW: wolfclu/ide/winvs/user_settings.h
+  USER_SETTINGS_H_NEW: ide/winvs/user_settings.h
   USER_SETTINGS_H: wolfssl/IDE/WIN/user_settings.h
   WOLFSSL_LIB_PATH: wolfssl/Release/x64/wolfssl.lib
   WOLFSSL_LIB_TARGET_PATH: wolfclu/wolfssl.lib
