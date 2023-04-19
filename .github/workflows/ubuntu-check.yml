@@ -16,6 +16,9 @@ jobs:
       with:
         repository: wolfssl/wolfssl
         path: wolfssl
+    - name: check shell
+      working-directory: ./wolfssl        
+      run: echo $SHELL
     - name: wolfssl autogen
       working-directory: ./wolfssl        
       run: ./autogen.sh
